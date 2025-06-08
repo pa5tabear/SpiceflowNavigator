@@ -1,6 +1,7 @@
 import os
 import sys
-from spiceflow.clients.runpod_client import RunPodClient
+import requests
+from gradio_client import Client
 
 
 def main(job_id: str | None = None) -> None:
@@ -14,8 +15,14 @@ def main(job_id: str | None = None) -> None:
     endpoint_env = os.getenv("RUNPOD_ENDPOINT")
     if not endpoint_env:
         raise RuntimeError("RUNPOD_ENDPOINT not set")
-    client = RunPodClient(endpoint_env)
-    status = client.status(job_id)["status"]
+
+    endpoint = endpoint_env.rstrip("/")
+    # Instantiate Client to ensure library availability
+    Client(endpoint)
+    url = f"{endpoint}/status/{job_id}"
+    resp = requests.get(url, timeout=10)
+    resp.raise_for_status()
+    status = resp.json()["status"]
 
     print(status)
 
