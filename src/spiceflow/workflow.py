@@ -45,12 +45,6 @@ class WorkflowManager:
             path = self._path_for_url(url)
             if path.exists():
                 continue
-            transcript = self.client.run(
-                url,
-                model="Systran/faster-whisper-large-v3",
-                task="transcribe",
-                temperature=0.0,
-                stream=False,
-            )
+            transcript = self.client.transcribe(url)
             content = f"# Transcript\n\nURL: {url}\n\n{transcript}\n"
             path.write_text(content)

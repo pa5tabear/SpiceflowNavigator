@@ -9,13 +9,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     client = RunPodClient()
-    result = client.run(
-        args.audio_url,
-        model="Systran/faster-whisper-large-v3",
-        task="transcribe",
-        temperature=0.0,
-        stream=False,
-    )
+    result = client.transcribe(args.audio_url)
     print(result)
 
 

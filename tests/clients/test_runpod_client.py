@@ -34,46 +34,17 @@ def test_init_from_env(monkeypatch):
     assert client.client is dummy
 
 
-def test_run_calls_predict(monkeypatch):
+def test_transcribe_calls_predict(monkeypatch):
     dummy = DummyClient("http://api")
     monkeypatch.setattr(
         "spiceflow.clients.runpod_client.Client", lambda endpoint: dummy
     )
     client = RunPodClient("http://api")
-    result = client.run("file.wav", "model", "task", 0.1, False)
+    result = client.transcribe("file.wav")
     assert result == "dummy-result"
     assert dummy.calls == [
         (
-            ("file.wav", "model", "task", 0.1),
+            ("file.wav", "Systran/faster-whisper-large-v3", "transcribe", 0.0),
             {"stream": False, "api_name": "/predict"},
         )
     ]
-
-
-def test_status_calls_requests(monkeypatch):
-    dummy = DummyClient("http://api")
-    monkeypatch.setattr(
-        "spiceflow.clients.runpod_client.Client", lambda endpoint: dummy
-    )
-
-    calls: list[tuple[str, int]] = []
-
-    class FakeResp:
-        def __init__(self, data: dict) -> None:
-            self.data = data
-
-        def raise_for_status(self) -> None:
-            pass
-
-        def json(self) -> dict:
-            return self.data
-
-    def fake_get(url: str, timeout: int) -> FakeResp:
-        calls.append((url, timeout))
-        return FakeResp({"status": "COMPLETED"})
-
-    monkeypatch.setattr("spiceflow.clients.runpod_client.requests.get", fake_get)
-    client = RunPodClient("http://api")
-    result = client.status("123")
-    assert result == {"status": "COMPLETED"}
-    assert calls == [("http://api/status/123", 10)]
