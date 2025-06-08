@@ -1,5 +1,7 @@
 import os
 from gradio_client import Client
+import requests
+
 
 class RunPodClient:
     """Client for interacting with a Gradio-based RunPod endpoint."""
@@ -29,3 +31,12 @@ class RunPodClient:
             stream=stream,
             api_name="/predict",
         )
+
+    # ------------------------------------------------------------------
+    def status(self, job_id: str) -> dict:
+        """Return the job status dictionary."""
+
+        url = f"{self.endpoint}/status/{job_id}"
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        return resp.json()

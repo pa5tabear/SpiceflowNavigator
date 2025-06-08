@@ -26,7 +26,9 @@ def test_init_requires_endpoint(monkeypatch):
 def test_init_from_env(monkeypatch):
     dummy = DummyClient("http://api")
     monkeypatch.setenv("RUNPOD_ENDPOINT", "http://api")
-    monkeypatch.setattr("spiceflow.clients.runpod_client.Client", lambda endpoint: dummy)
+    monkeypatch.setattr(
+        "spiceflow.clients.runpod_client.Client", lambda endpoint: dummy
+    )
     client = RunPodClient()
     assert client.endpoint == "http://api"
     assert client.client is dummy
@@ -34,11 +36,44 @@ def test_init_from_env(monkeypatch):
 
 def test_run_calls_predict(monkeypatch):
     dummy = DummyClient("http://api")
-    monkeypatch.setattr("spiceflow.clients.runpod_client.Client", lambda endpoint: dummy)
+    monkeypatch.setattr(
+        "spiceflow.clients.runpod_client.Client", lambda endpoint: dummy
+    )
     client = RunPodClient("http://api")
     result = client.run("file.wav", "model", "task", 0.1, False)
     assert result == "dummy-result"
-    assert dummy.calls == [(
-        ("file.wav", "model", "task", 0.1),
-        {"stream": False, "api_name": "/predict"},
-    )]
+    assert dummy.calls == [
+        (
+            ("file.wav", "model", "task", 0.1),
+            {"stream": False, "api_name": "/predict"},
+        )
+    ]
+
+
+def test_status_calls_requests(monkeypatch):
+    dummy = DummyClient("http://api")
+    monkeypatch.setattr(
+        "spiceflow.clients.runpod_client.Client", lambda endpoint: dummy
+    )
+
+    calls: list[tuple[str, int]] = []
+
+    class FakeResp:
+        def __init__(self, data: dict) -> None:
+            self.data = data
+
+        def raise_for_status(self) -> None:
+            pass
+
+        def json(self) -> dict:
+            return self.data
+
+    def fake_get(url: str, timeout: int) -> FakeResp:
+        calls.append((url, timeout))
+        return FakeResp({"status": "COMPLETED"})
+
+    monkeypatch.setattr("spiceflow.clients.runpod_client.requests.get", fake_get)
+    client = RunPodClient("http://api")
+    result = client.status("123")
+    assert result == {"status": "COMPLETED"}
+    assert calls == [("http://api/status/123", 10)]
