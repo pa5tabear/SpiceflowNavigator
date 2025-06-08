@@ -1,0 +1,32 @@
+# Strategic Topics for Spiceflow Navigator Analysis
+# Derived from Personal Goals document dated 07-27-24.
+# This file is the single source of truth for defining "strategic relevance"
+# and is loaded by the StrategicAnalyzer at runtime.
+
+people:
+  - Jigar Shah
+  - Jesse Jenkins
+  - Jennifer Granholm
+
+organizations:
+  - Department of Energy
+  - Loan Programs Office
+  - ARPA-E
+  - FERC
+
+concepts:
+  - Renewable Energy Pipeline
+  - Policy Trends
+  - Tech Trends
+  - Project Due-Diligence
+  - Site Screening
+  - Tariff Analysis
+  - Zoning
+  - Interconnection
+  - Distributed Generation
+  - Utility-Scale Solar
+  - Clean Energy Finance
+  - Investment Memo
+  - Inflation Reduction Act
+  - IRA
+  - Permitting Reform 
