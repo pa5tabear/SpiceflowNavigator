@@ -1,50 +1,51 @@
 ---
 number: 22
-title: "Golden Path: Live RSS to Transcript"
-goal: "Get a green CI run by successfully transcribing the latest episode from a live RSS feed."
-focus_minutes: 90
-loc_budget: 150
-test_pattern: "test_golden_path"
+title: "Surgical Fix: Stabilize Whisper Client"
+goal: "Get a green CI run by implementing the verbatim patches from the PR #20 code review."
+focus_minutes: 60
+loc_budget: 40
+test_pattern: "test_proxy_transcription"
 template_version: 1.2 (2025-06-09)
 require_golden_path: true
-coverage_min: 75 # Lowering slightly due to complexity of mocking network calls
+coverage_min: 80
 dep_script: scripts/ci/check_new_deps.sh
 ---
 
-# Sprint 22 · Golden Path: Live RSS to Transcript
+# Sprint 22 · Surgical Fix: Stabilize Whisper Client
 
 ## 1 · Sprint Goal & Alignment
-**Goal:** Get a green CI run by successfully transcribing the latest episode from a live RSS feed.
+**Goal:** Get a green CI run by implementing the verbatim patches from the PR #20 code review.
 
 **Product Vision Alignment:** 
-> This sprint leapfrogs the simple test fix and aims for the ultimate proof of value: demonstrating a full, live workflow. By successfully parsing a real RSS feed and transcribing its latest episode, we will unblock the project and deliver the first tangible piece of the "Daily Briefing" MVP.
+> A detailed code review has provided a precise, line-by-line fix for all known bugs in our client and tests. This sprint implements those fixes exactly as specified to eliminate all known failure points, unblock the CI pipeline, and finally stabilize our core transcription service.
 
 ---
 
 ## 2 · Tasks & Acceptance Criteria
 | # | Task | Key Acceptance Criteria (Enforced by CI) |
 |---|---|---|
-| 1 | **Create Golden Path Test** | A new integration test, `tests/integration/test_golden_path.py`, will be created. It must not use mocks for `RSSParser` or `RunPodClient`. |
-| 2 | **Implement Live Workflow** | The test will use the `RSSParser` to fetch and parse the "Shift Key" feed (`https://feeds.acast.com/public/shows/65bac3af03341c00164bf93b`). It will then extract the audio URL for the most recent episode. |
-| 3 | **Assert Real Transcript** | The test will pass the extracted audio URL to the `RunPodClient.transcribe()` method. The test will pass if the method returns a string transcript that is longer than 100 characters, proving a real, non-trivial transcription occurred. |
+| 1 | **Patch `runpod_client.py`** | Modify the `transcribe` method to exactly match the provided `diff`. It must include the health-check, timeout, `stream=False` default, and keyword arguments for model/task. The `status()` method must remain deleted. |
+| 2 | **Patch `test_transcribe_proxy.py`** | Modify the integration test to exactly match the provided `diff`. It must include the `@pytest.mark.skipif` decorator and the health-check assertion. |
+| 3 | **Patch `env_check.py`** | Modify the script to exactly match the provided `diff`. It must remove the API key check and replace it with a health check against the proxy root URL. |
 
 ---
 
 ## 3 · New or Changed Interfaces
 | Interface / Component | Change Description | Contract (Inputs / Outputs) |
 |---|---|---|
-| `tests/integration/test_golden_path.py` | New Test | A full-stack integration test that calls the live RSS feed and the live transcription service. |
-| `src/spiceflow/clients/runpod_client.py` | Minor fix | The `transcribe` method may need to accept a URL string directly, not just a `Path` object. |
+| `src/spiceflow/clients/runpod_client.py` | Patched | Added health check, timeout, and kwargs. |
+| `tests/integration/test_transcribe_proxy.py` | Patched | Added skip-logic and health check. |
+| `scripts/env_check.py` | Patched | Replaced API key check with proxy health check. |
 
 ---
 
 ## 4 · 🎯 SUCCESS METRICS (CI-ENFORCED)
 *   **CI Badge:** ![CI](https://github.com/pa5tabear/SpiceflowNavigator/actions/workflows/ci.yml/badge.svg?branch=sprint-22)
-*   **Test Execution & Coverage:** `pytest --cov=src --cov-fail-under=75 -k "test_golden_path"` must pass.
-*   All other metrics from the `TEMPLATE.md` apply.
+*   The `test_proxy_transcription` test must pass.
+*   All other metrics from `TEMPLATE.md` apply.
 
 ---
 
 ## 5. Post-Sprint Mandates & Anti-Fabrication
-*   Commit messages must start with `feat(sprint22):`.
+*   Commit message must be `fix(sprint22): stabilize whisper client per review`.
 *   All other rules from the `TEMPLATE.md` apply. 
