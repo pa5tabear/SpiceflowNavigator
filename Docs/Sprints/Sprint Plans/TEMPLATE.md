@@ -61,6 +61,11 @@ dep_script: scripts/ci/check_new_deps.sh
 
 ### 🔒 Guard-Rails
 *   All rules in [`Docs/PROCESS/guardrails.md`](../../PROCESS/guardrails.md) apply by reference.
+*   ---
+*   **🚨 CRITICAL: DO NOT COMMIT BINARY FILES (.mp3, .wav, etc.) 🚨**
+*   **YOUR PULL REQUEST WILL BE REJECTED IF IT CONTAINS BINARY ASSETS.**
+*   **You MUST use fixtures already present in the repository or add new text-based stubs.**
+*   ---
 
 ### ✍️ Codex Self-Reflection & Commit Rules
 *   A root cause analysis (RCA) and reflection markdown file **is mandatory**.
