@@ -1,0 +1,19 @@
+name: long_poll
+on:
+  workflow_dispatch:
+  push:
+    paths: [.github/workflows/long_poll.yml]
+
+jobs:
+  sleeper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: long sleep
+        run: |
+          sleep 60
+          echo hi > /tmp/keep.txt
+          for i in {1..10}; do
+            sleep 60
+          done
+          if [ "$(cat /tmp/keep.txt)" != "hi" ]; then exit 1; fi
+          sleep 60
