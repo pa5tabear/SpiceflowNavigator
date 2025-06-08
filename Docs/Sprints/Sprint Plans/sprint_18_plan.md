@@ -1,3 +1,5 @@
+# Sprint 18 – Prove Live End-to-End Job Submission
+
 ---
 number: 18
 title: "Prove Live End-to-End Job Submission"
@@ -8,13 +10,13 @@ test_pattern: "test_e2e_submission_and_status_check"
 template_version: 1.2 (2025-06-09)
 require_golden_path: true
 coverage_min: 80
-dep_script: scripts/ci/check_new_deps.sh
+dep_script: "scripts/ci/check_new_deps.sh"
 ---
 
-# Sprint {{number}} · {{title}}
+# Sprint 18 · Prove Live End-to-End Job Submission
 
 ## 1 · Sprint Goal & Alignment
-**Goal:** {{goal}}
+**Goal:** Execute a script that submits a real transcription job and then immediately verifies its 'QUEUED' or 'IN_PROGRESS' status via the API.
 
 **Product Vision Alignment:** 
 > After hardening our process in Sprint 17, we now return to the critical path. We still lack evidence that our core transcription workflow functions. This sprint will provide that proof by not only submitting a job but immediately verifying its status. This is the bedrock upon which all future features will be built.
@@ -26,7 +28,7 @@ dep_script: scripts/ci/check_new_deps.sh
 ### Pre-flight (must pass before Task 1)
 - [ ] `python scripts/env_check.py` ✅
 - [ ] Last `ci.yml` run is green.
-- [ ] Template version is `{{template_version}}`.
+- [ ] Template version is `1.2 (2025-06-09)`.
 
 ### Task Table (Rule of Three)
 | # | Task | Key Acceptance Criteria (Enforced by CI) |
@@ -48,20 +50,22 @@ dep_script: scripts/ci/check_new_deps.sh
 
 ## 4 · 🎯 SUCCESS METRICS (CI-ENFORCED)
 
-*   **CI Badge:** ![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg?branch=sprint-{{number}})
-*   **Golden Path Execution:** The new `scripts/run_e2e_transcription.py` must be the final, successful step in the CI pipeline.
-*   **Test Execution & Coverage:** `pytest --cov=src --cov-fail-under={{coverage_min}} -k {{test_pattern}}` must pass.
+*   **CI Badge:** ![CI](https://github.com/pa5tabear/SpiceflowNavigator/actions/workflows/ci.yml/badge.svg?branch=sprint-18)
+*   **LOC Budget:** `scripts/ci/check_loc_budget.sh 150` must pass.
+*   **New Dependencies:** `scripts/ci/check_new_deps.sh` must pass.
+*   **Test Execution & Coverage:** `pytest --cov=src --cov-fail-under=80 -k test_e2e_submission_and_status_check` must pass.
+*   **Linter:** `ruff format --check` and `ruff --fail-level error` must pass.
 
 ---
 
 ## 5. Post-Sprint Mandates & Anti-Fabrication
 
 ### 🔒 Guard-Rails
-*   All rules in [`Docs/PROCESS/guardrails.md`](../PROCESS/guardrails.md) apply by reference.
+*   All rules in [`Docs/PROCESS/guardrails.md`](../../PROCESS/guardrails.md) apply by reference.
 
 ### ✍️ Codex Self-Reflection & Commit Rules
 *   A root cause analysis (RCA) and reflection markdown file **is mandatory**.
-*   Commit messages must start with `feat(sprint{{number}}):` or `fix(sprint{{number}}):`.
+*   Commit messages must start with `feat(sprint18):` or `fix(sprint18):`.
 
 ### ✨ Golden Path Script
 {% if require_golden_path %}
