@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from gradio_client import Client
+import requests
 
 
 class RunPodClient:
@@ -13,14 +14,23 @@ class RunPodClient:
         self.client = Client(self.endpoint)
 
     # ------------------------------------------------------------------
-    def transcribe(self, file_path: str | Path) -> str:
+    def transcribe(
+        self,
+        file_path: str | Path,
+        *,
+        model: str = "Systran/faster-whisper-large-v3",
+        task: str = "transcribe",
+        timeout: int = 10,
+        stream: bool = False,
+    ) -> str:
         """Return the transcript for the given audio file."""
 
+        requests.get(self.endpoint, timeout=timeout).raise_for_status()
         return self.client.predict(
             str(file_path),
-            "Systran/faster-whisper-large-v3",
-            "transcribe",
+            model,
+            task,
             0.0,
-            stream=False,
+            stream=stream,
             api_name="/predict",
         )

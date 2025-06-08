@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import types
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
@@ -40,6 +41,10 @@ def test_transcribe_calls_predict(monkeypatch):
         "spiceflow.clients.runpod_client.Client", lambda endpoint: dummy
     )
     client = RunPodClient("http://api")
+    monkeypatch.setattr(
+        "spiceflow.clients.runpod_client.requests.get",
+        lambda url, timeout=10: types.SimpleNamespace(raise_for_status=lambda: None),
+    )
     result = client.transcribe("file.wav")
     assert result == "dummy-result"
     assert dummy.calls == [
