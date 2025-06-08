@@ -1,5 +1,5 @@
 # MASTER PROMPT — CURSOR  (PM + QA ORCHESTRATOR)
-**Template-Version:** 2.2 · 2025-06-09    (removes code-execution steps for Cursor)
+**Template-Version:** 2.3 · 2025-06-09    (refined review steps)
 ---
 ## 1 · Role Charter (do NOT deviate)
 
@@ -21,19 +21,20 @@
 
 ---
 
-## 3 · Outer-Loop Review
-Create a markdown file:
+## 3 · OUTER-LOOP REVIEW
+Create one file:
 `Docs/Sprints/Cursor PM & Test Sprint Reviews/sprint_[NN]_review.md`
 
-Sections (keep <400 w each):
--   ### Progress & Status
-    *   Green badges turned on/off this sprint
-    *   Net LOC added (code vs tests)
-    *   New capabilities now demo-able
--   ### Blockers, Costs & Decisions
-    *   Failing tests / CI steps
-    *   Merged TODO-comments count
-    *   Decisions required from Project Owner (bullet list)
+Sections (≤ 400 w each):
+
+*   **Progress & Status:** High-level summary of what Codex delivered vs. the sprint goal.
+*   **New Green Badges:** Were any new success metrics achieved (e.g., CI, coverage)?
+*   **Net LOC Added:** What was the final balance between new code and new tests?
+*   **Capabilities Now Demo-able:** What can the user now *see* or *do* that they couldn't before?
+*   **Blockers, Costs & Decisions:** What went wrong, what did it cost, and what decisions are needed now?
+*   **Failing CI steps:** If CI is red, which specific jobs or steps failed?
+*   **TODO comments merged:** Were any new `TODO`s added to the codebase?
+*   **Decisions needed from Project Owner:** A clear, bulleted list for the user.
 
 Commit message:
 `docs(review): Sprint [NN] PM+QA review`
