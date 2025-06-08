@@ -1,2 +1,4 @@
 feeds:
-  - https://feeds.acast.com/public/shows/65bac3af03341c00164bf93b  # Shift Key
+  - name: Shift Key
+    url: https://feeds.acast.com/public/shows/65bac3af03341c00164bf93b
+    strategic_importance: 1
