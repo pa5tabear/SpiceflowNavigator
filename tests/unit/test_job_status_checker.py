@@ -8,8 +8,15 @@ import scripts.job_status_checker as checker
 
 
 def test_job_status_checker(monkeypatch, capsys):
-    fake_client = types.SimpleNamespace(status=lambda job_id: {"status": "QUEUED"})
-    monkeypatch.setattr(checker, "RunPodClient", lambda endpoint: fake_client)
+    class FakeResp:
+        def raise_for_status(self) -> None:
+            pass
+
+        def json(self) -> dict:
+            return {"status": "QUEUED"}
+
+    monkeypatch.setattr(checker, "Client", lambda endpoint: object())
+    monkeypatch.setattr(checker.requests, "get", lambda url, timeout=10: FakeResp())
     monkeypatch.setenv("RUNPOD_API_KEY", "x")
     monkeypatch.setenv("RUNPOD_ENDPOINT", "http://api")
     checker.main("123")
