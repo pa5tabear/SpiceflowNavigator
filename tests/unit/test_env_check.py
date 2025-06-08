@@ -9,7 +9,6 @@ import scripts.env_check as env_check
 
 
 def test_env_check_pass(monkeypatch):
-    monkeypatch.setenv("RUNPOD_API_KEY", "x")
     monkeypatch.setenv("RUNPOD_ENDPOINT", "y")
 
     def fake_get(url, timeout):
@@ -23,7 +22,6 @@ def test_env_check_pass(monkeypatch):
 
 
 def test_env_check_fail(monkeypatch):
-    monkeypatch.delenv("RUNPOD_API_KEY", raising=False)
     monkeypatch.delenv("RUNPOD_ENDPOINT", raising=False)
 
     def fake_get(url, timeout):

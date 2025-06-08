@@ -31,7 +31,7 @@ def test_job_status_checker(monkeypatch, capsys):
 
     from spiceflow import cli
 
-    dummy = types.SimpleNamespace(run=lambda *a, **k: "ok")
+    dummy = types.SimpleNamespace(transcribe=lambda *a, **k: "ok")
     monkeypatch.setattr(cli, "RunPodClient", lambda: dummy)
     cli.main(["http://foo/bar.wav"])
 
@@ -39,7 +39,7 @@ def test_job_status_checker(monkeypatch, capsys):
     from spiceflow.rss_parser import RSSParser
     from spiceflow.clients.runpod_client import RunPodClient
 
-    dummy_client = types.SimpleNamespace(run=lambda *a, **k: "ok")
+    dummy_client = types.SimpleNamespace(transcribe=lambda *a, **k: "ok")
     wm = WorkflowManager(
         "http://feed",
         transcripts_dir=Path("tmp"),
@@ -60,11 +60,4 @@ def test_job_status_checker(monkeypatch, capsys):
         "spiceflow.clients.runpod_client.Client", lambda endpoint: dummy_client_obj
     )
     rp_client = RunPodClient("http://api")
-    rp_client.run("file.wav", "model", "task", 0.0, False)
-    monkeypatch.setattr(
-        "spiceflow.clients.runpod_client.requests.get",
-        lambda url, timeout=10: types.SimpleNamespace(
-            json=lambda: {"status": "COMPLETE"}, raise_for_status=lambda: None
-        ),
-    )
-    rp_client.status("id")
+    rp_client.transcribe("file.wav")

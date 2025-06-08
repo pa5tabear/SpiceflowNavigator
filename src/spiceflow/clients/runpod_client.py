@@ -1,6 +1,6 @@
 import os
+from pathlib import Path
 from gradio_client import Client
-import requests
 
 
 class RunPodClient:
@@ -13,30 +13,14 @@ class RunPodClient:
         self.client = Client(self.endpoint)
 
     # ------------------------------------------------------------------
-    def run(
-        self,
-        file_path: str,
-        model: str,
-        task: str,
-        temperature: float,
-        stream: bool,
-    ) -> str:
-        """Call the Gradio predict endpoint and return the result."""
+    def transcribe(self, file_path: str | Path) -> str:
+        """Return the transcript for the given audio file."""
 
         return self.client.predict(
-            file_path,
-            model,
-            task,
-            temperature,
-            stream=stream,
+            str(file_path),
+            "Systran/faster-whisper-large-v3",
+            "transcribe",
+            0.0,
+            stream=False,
             api_name="/predict",
         )
-
-    # ------------------------------------------------------------------
-    def status(self, job_id: str) -> dict:
-        """Return the job status dictionary."""
-
-        url = f"{self.endpoint}/status/{job_id}"
-        resp = requests.get(url, timeout=10)
-        resp.raise_for_status()
-        return resp.json()

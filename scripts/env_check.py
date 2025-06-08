@@ -5,9 +5,6 @@ import requests
 
 def main() -> None:
     ok = True
-    if not os.getenv("RUNPOD_API_KEY"):
-        print("Missing RUNPOD_API_KEY", file=sys.stderr)
-        ok = False
     if not os.getenv("RUNPOD_ENDPOINT"):
         print("Missing RUNPOD_ENDPOINT", file=sys.stderr)
         ok = False
