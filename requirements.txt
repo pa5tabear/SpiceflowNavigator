@@ -2,3 +2,4 @@ pytest
 requests
 python-dotenv
 feedparser
+gradio_client
