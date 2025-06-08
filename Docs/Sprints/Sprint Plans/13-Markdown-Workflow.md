@@ -22,7 +22,7 @@
 ### Task 2: Implement the Workflow Manager (35 minutes)
 *   **Description**: Create a new `src/spiceflow/workflow.py` module containing the `WorkflowManager` class. This class will:
     1.  Initialize the `RSSParser` and the `RunPodClient`.
-    2.  Use the parser to get a list of the 10 most recent episode audio URLs.
+    2.  Use the parser to get a list of the 2 most recent episode audio URLs.
     3.  For each episode, check if a corresponding file exists in `transcripts/`.
     4.  If the file does *not* exist, use the `RunPodClient` to fetch the transcription.
     5.  Create a new Markdown file (e.g., `transcripts/2024-07-27-episode-title.md`) and populate it with the audio URL and the full transcription.
