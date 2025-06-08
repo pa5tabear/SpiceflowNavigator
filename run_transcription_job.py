@@ -1,17 +1,10 @@
 import os
 import requests
-import yaml
 import runpod
 from spiceflow.rss_parser import RSSParser
+from spiceflow.config import load_feeds
 
 
-CONFIG_PATH = "config/rss_feeds.yml"
-
-
-def load_feeds(path: str = CONFIG_PATH) -> list[str]:
-    with open(path) as fh:
-        data = yaml.safe_load(fh) or {}
-    return data.get("feeds", [])
 
 
 def latest_episode_url(feed_url: str) -> str:
