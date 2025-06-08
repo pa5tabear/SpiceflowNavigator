@@ -1,0 +1,19 @@
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run unit tests
+        run: pytest -q -m "not integration"
+      - name: Run integration tests
+        env:
+          RUNPOD_ENDPOINT: ${{ secrets.RUNPOD_ENDPOINT }}
+        run: pytest -q -m "integration" 

@@ -1,39 +1,15 @@
-# Spiceflow Navigator Sprint Plan Template
-## (Version 2.0 - Blended PM & Eng)
-
----
-
 # Sprint [NUMBER]: [TITLE]
 
-## 1. Sprint Review & Retrospective (The "Outer Loop")
-
-### Product Manager's Two-Paragraph Review
-*(This section is written by the Product Manager/Test Engineer after reviewing the results of the previous sprint).*
-
-**Paragraph 1: Progress & Status**
-> What's done, what works, and what has been verified by testing. Current estimated % complete toward the MVP goals.
-
-**Paragraph 2: Blockers, Costs & Decisions**
-> Notes on tech-debt or "fat-trimming" opportunities. Any decisions the project owner needs to make. Summary of API costs from the last sprint (Total, Whisper vs. LLM breakdown) and the running total project cost.
-
-### Next Steps & Human-in-the-Loop Flags
-*   [ ] Quick bulleted list of next actions.
-*   [ ] 🚩 **FLAG**: Any task that specifically requires human review or intervention.
-
----
-
-## 2. Sprint Goal & Strategic Alignment
+## 1. Sprint Goal & Strategic Alignment
 
 ### 60-Minute Focus: [SPECIFIC, MEASURABLE GOAL]
 
 ### Product Vision Alignment
-*(This section analyzes *why* this sprint is the most critical next step).*
-
 > A brief analysis of the original product vision, the current project status, and a justification for why this specific sprint goal is on the critical path to the MVP. This ensures we are not getting distracted by side-quests.
 
 ---
 
-## 3. Sprint Tasks & Acceptance Criteria (The "Inner Loop")
+## 2. Sprint Tasks & Acceptance Criteria (The "Inner Loop")
 
 *(This section defines the concrete, testable tasks for the Engineering Agent - Codex).*
 
@@ -54,7 +30,7 @@
 
 ---
 
-## 4. Post-Sprint Mandates
+## 3. Post-Sprint Mandates
 
 ### 1. Verification
 *   **CI Pipeline**: Must be green.
@@ -62,7 +38,7 @@
 *   **Output Validation**: A tangible output (e.g., a notification file in `EMAIL_EXAMPLES/`) must be generated and verified.
 
 ### 2. 🚩 Mandatory Post-Sprint Analysis & Root Cause Investigation (For Codex)
-*(After completing the technical tasks, the engineering agent **must** write a detailed analysis in `docs/sprints/sprint_[NUMBER]_reflection.md`. This is not a summary; it is a technical investigation.)*
+*(After completing the technical tasks, the engineering agent **must** write a detailed analysis in `Docs/Sprints/Codex Engineering Sprint Reviews/sprint_[NUMBER]_reflection.md`. This is not a summary; it is a technical investigation.)*
 
 **Structure for your Analysis:**
 
