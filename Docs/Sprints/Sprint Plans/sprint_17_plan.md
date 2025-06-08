@@ -1,52 +1,73 @@
-# Sprint 17: Process Hardening & Config Alignment
+---
+number: 17
+title: "Prove Live End-to-End Job Submission"
+goal: "Execute a script that submits a real transcription job and then immediately verifies its 'QUEUED' or 'IN_PROGRESS' status via the API."
+focus_minutes: 60
+loc_budget: 150
+test_pattern: "test_e2e_submission_and_status_check"
+template_version: 1.2 (2025-06-09)
+require_golden_path: true
+coverage_min: 80
+dep_script: scripts/ci/check_new_deps.sh
+---
 
-## 1. Sprint Goal & Strategic Alignment
+# Sprint {{number}} · {{title}}
 
-### 60-Minute Focus: Remediate process gaps from Sprint 16 by creating a mandatory environment check script and aligning the `rss_feeds.yml` configuration with the project standard.
+## 1 · Sprint Goal & Alignment
+**Goal:** {{goal}}
 
-### Product Vision Alignment
-> A stable, repeatable process is the bedrock of the product vision. Sprint 16 revealed two critical gaps: a missing pre-flight check and a configuration file that diverged from the established standard. This sprint is on the critical path to ensure the reliability and maintainability of our development loop. Without these fixes, future sprints will be built on an unstable foundation.
+**Product Vision Alignment:** 
+> We currently lack evidence that our core transcription workflow functions. This sprint is the highest possible priority. It closes the loop by not only submitting a job but immediately verifying its status, providing the first piece of concrete proof that the system works end-to-end. This is the bedrock upon which all future features will be built.
 
 ---
 
-## 2. Sprint Tasks & Acceptance Criteria (The "Inner Loop")
+## 2 · Tasks & Acceptance Criteria
 
-### Guard-Rails & Test-First Development
-*   **CI-Enforced Validation**: All claims must be verified by CI.
-*   **Test-First Mandate**: Failing tests must be written before implementation.
-*   **Golden Path Script**: Not applicable for this process-focused sprint.
+### Pre-flight (must pass before Task 1)
+- [ ] `python scripts/env_check.py` ✅ (Note: This script must be created in Task 1)
+- [ ] Last `ci.yml` run is green.
+- [ ] Template version is `{{template_version}}`.
 
-### Task 1: Create `env_check.py` Script (20 minutes)
-*   **Description**: Create a new script at `scripts/env_check.py` that verifies the presence of `RUNPOD_API_KEY` and `RUNPOD_ENDPOINT` environment variables, and confirms basic internet connectivity.
-*   **Acceptance Criteria**:
-    *   [ ] The script exits with code 0 if all checks pass.
-    *   [ ] The script prints a clear error and exits with code 1 if any check fails.
-    *   [ ] `pytest -k test_env_check` runs clean.
-
-### Task 2: Standardize and Load Configuration (40 minutes)
-*   **Description**: Update `config/rss_feeds.yml` to the structured format. Create a new module `src/spiceflow/config.py` to load and validate this file. Refactor `run_transcription_job.py` to use the new config loader.
-*   **Acceptance Criteria**:
-    *   [ ] A failing test is created in `tests/unit/test_config.py` that asserts the structured data is loaded correctly.
-    *   [ ] `src/spiceflow/config.py` is implemented to make the test pass.
-    *   [ ] `run_transcription_job.py` is refactored to use the new loader and runs without error.
-    *   [ ] `pytest -k test_config_loader` runs clean.
+### Task Table (Rule of Three)
+| # | Task | Key Acceptance Criteria (Enforced by CI) |
+|---|---|---|
+| 1 | **Create `env_check.py` & `config.py`** | Create `scripts/env_check.py` to validate secrets. Create `src/spiceflow/config.py` to load a standardized, structured `config/rss_feeds.yml`. |
+| 2 | **Create `job_status_checker.py`** | Create a new script that takes a `job_id` and uses the `runpod.get_job()` function to fetch and print the job's status. |
+| 3 | **Create Golden Path Script** | Create `scripts/run_e2e_transcription.py` that a) runs env check, b) calls `run_transcription_job.py` to get a job_id, and c) immediately calls `job_status_checker.py` with that id, asserting the status is not 'FAILED'. |
 
 ---
 
-## 3. Post-Sprint Mandates
-
-### 1. Verification
-*   **CI Pipeline**: Must be green.
-*   **Golden Path**: Not applicable.
-*   **Output Validation**: The `run_transcription_job.py` script must still successfully launch a job when secrets are present.
-
-### 2. 🚩 Mandatory Post-Sprint Analysis & Root Cause Investigation (For Codex)
-*(After completing the technical tasks, the engineering agent **must** write a detailed analysis in `Docs/Sprints/Codex Engineering Sprint Reviews/sprint_17_reflection.md`)*
+## 3 · New or Changed Interfaces
+<!-- Append new rows; do not edit previous sprint entries -->
+| Interface / Component | Change Description | Contract (Inputs / Outputs) |
+|---|---|---|
+| `scripts/env_check.py` | New script. | **Input:** Environment variables. **Output:** Exits 0 on success, 1 on failure. |
+| `src/spiceflow/config.py`| New module. | **Input:** `config/rss_feeds.yml`. **Output:** Validated config object. |
+| `scripts/job_status_checker.py`| New script. | **Input:** `job_id` (string). **Output:** Job status (string) to stdout. |
+| `scripts/run_e2e_transcription.py`| New script. | **Input:** None. **Output:** Final job status to stdout. |
 
 ---
-## 🎯 SUCCESS METRICS (CI-Enforced)
 
-- **All Tests Pass**: `pytest -q` shows green.
-- **Ruff Linting**: `ruff --fail-level error` reports clean.
-- **Test Coverage**: `pytest --cov` reports >= 80%.
-- **CI Pipeline**: GitHub Actions shows all checks passing. 
+## 4 · 🎯 SUCCESS METRICS (CI-ENFORCED)
+
+*   **CI Badge:** ![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg?branch=sprint-{{number}})
+*   **Golden Path Execution:** The new `scripts/run_e2e_transcription.py` must be the final, successful step in the CI pipeline.
+*   **Test Execution & Coverage:** `pytest --cov=src --cov-fail-under={{coverage_min}} -k {{test_pattern}}` must pass.
+
+---
+
+## 5. Post-Sprint Mandates & Anti-Fabrication
+
+### 🔒 Guard-Rails
+*   All rules in [`Docs/PROCESS/guardrails.md`](../PROCESS/guardrails.md) apply by reference.
+
+### ✍️ Codex Self-Reflection & Commit Rules
+*   A root cause analysis (RCA) and reflection markdown file **is mandatory**.
+*   Commit messages must start with `feat(sprint{{number}}):` or `fix(sprint{{number}}):`.
+
+### ✨ Golden Path Script
+{% if require_golden_path %}
+*   The Golden Path script (`scripts/run_e2e_transcription.py`) is **required** and must pass.
+{% else %}
+*   The Golden Path script is **not required** for this sprint.
+{% endif %} 
