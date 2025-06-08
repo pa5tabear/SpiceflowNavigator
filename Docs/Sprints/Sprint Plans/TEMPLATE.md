@@ -1,206 +1,77 @@
-# Sprint [NUMBER]: [TITLE]
+---
+number: 0
+title: "Sprint Title"
+goal: "A single, measurable sentence describing the sprint's primary objective."
+focus_minutes: 60
+loc_budget: 150
+test_pattern: "test_pattern_for_this_sprint"
+template_version: 1.2 (2025-06-09)
+require_golden_path: false
+coverage_min: 80
+dep_script: scripts/ci/check_new_deps.sh
+---
 
-## 1. Sprint Goal & Strategic Alignment
+# Sprint {{number}} · {{title}}
 
-### 60-Minute Focus: [SPECIFIC, MEASURABLE GOAL]
+## 1 · Sprint Goal & Alignment
+**Goal:** {{goal}}
 
-### Product Vision Alignment
-> A brief analysis of the original product vision, the current project status, and a justification for why this specific sprint goal is on the critical path to the MVP. This ensures we are not getting distracted by side-quests.
+**Product Vision Alignment:** 
+> Why is this sprint goal critical to the MVP right now? (e.g., "This unblocks downstream transcript analysis, as per MVP roadmap §2.2.")
 
 ---
 
-## 2. Sprint Tasks & Acceptance Criteria (The "Inner Loop")
+## 2 · Tasks & Acceptance Criteria
 
-*(This section defines the concrete, testable tasks for the Engineering Agent - Codex).*
+### Pre-flight (must pass before Task 1)
+- [ ] `python scripts/env_check.py` ✅
+- [ ] Last `ci.yml` run is green.
+- [ ] Template version is `{{template_version}}`.
 
-### Guard-Rails & Test-First Development
-*   **CI-Enforced Validation**: All claims must be verified by CI.
-*   **Test-First Mandate**: Failing tests must be written before implementation.
-*   **Golden Path Script**: End-to-end validation must be run to confirm integration.
+### Task Table (Rule of Three)
+*Propose at most 3 tasks. If more are needed, the sprint scope is too large.*
 
-### Task 1: [TASK_NAME] ([ESTIMATED_TIME] minutes)
-*   **Description**: [Brief description of the task].
-*   **Acceptance Criteria**:
-    *   [ ] A failing test is created in `tests/...` that defines success.
-    *   [ ] Implementation is written to make the test pass.
-    *   [ ] `pytest -q` runs clean.
-    *   [ ] `ai_honesty_lint.py` script passes.
-
-### Task 2: ... (Continue as needed)
+| # | Task | Key Acceptance Criteria (Enforced by CI) |
+|---|---|---|
+| 1 | **[Task 1 Name]** | A passing test that matches `pytest -k {{test_pattern}}` |
+| 2 | **[Task 2 Name]** | ... |
+| 3 | **[Task 3 Name]** | ... |
 
 ---
 
-## 3. Post-Sprint Mandates
-
-### 1. Verification
-*   **CI Pipeline**: Must be green.
-*   **Golden Path**: The `run_full_pipeline.py` script must be executed successfully.
-*   **Output Validation**: A tangible output (e.g., a notification file in `EMAIL_EXAMPLES/`) must be generated and verified.
-
-### 2. 🚩 Mandatory Post-Sprint Analysis & Root Cause Investigation (For Codex)
-*(After completing the technical tasks, the engineering agent **must** write a detailed analysis in `Docs/Sprints/Codex Engineering Sprint Reviews/sprint_[NUMBER]_reflection.md`. This is not a summary; it is a technical investigation.)*
-
-**Structure for your Analysis:**
-
-**Part 1: Executive Summary of Action**
-> Briefly describe the tasks you executed as defined in the sprint plan and their final status (e.g., `SUCCESS`, `FAILURE`, `PARTIAL SUCCESS`).
-
-**Part 2: Root Cause Analysis (RCA) of Failures & Challenges**
-> For **each** significant challenge or failed test, provide the following structured analysis. If the sprint was fully successful, state that clearly.
-
-> *   **Observation:** What was the exact, observable error message or unexpected behavior? Provide logs or output. This is the *symptom*.
-> *   **Hypothesis:** What is your primary hypothesis for the root cause of this observation? Be specific. (e.g., "I hypothesize the API key is invalid," not "There was an authentication problem.")
-> *   **Failed Workarounds:** Describe any workarounds you attempted. Explain why you believe they failed to address the root cause, based on your hypothesis.
-
-**Part 3: Proposed Next Sprint (Problem Decomposition)**
-> Based on your RCA, propose a plan for the *next* sprint. This plan must be designed to test your primary hypothesis with the smallest possible experiment.
-
-> *   **Proposed Sprint Goal:** A single, measurable sentence that directly addresses your hypothesis. (e.g., "Goal: Prove or disprove that the API key is valid by making a simple health check call that requires authentication.")
-> *   **Decomposed Tasks:** A bulleted list of small, verifiable tasks to achieve the new goal. This is your suggested plan for the next sprint.
->     *   *Example Task 1:* Create a new, minimal test file `tests/diagnostics/test_auth.py`.
->     *   *Example Task 2:* In that test, make a GET request to the `/healthz` endpoint, passing the API key in the header.
->     *   *Example Task 3:* Assert that the HTTP response code is 200, not 401 or 403.
+## 3 · New or Changed Interfaces
+<!-- Append new rows; do not edit previous sprint entries -->
+| Interface / Component | Change Description | Contract (Inputs / Outputs) |
+|---|---|---|
+| `src/module.py` | Initial implementation | **Input:** `str`, **Output:** `dict` |
 
 ---
 
-# 📋 PRE-SPRINT CHECKLIST
-- [ ] CI pipeline passing (mvp-sanity-check)
-- [ ] All guard-rails operational
-- [ ] No fabrication detected in previous sprint
-- [ ] Transcription environment validated (if applicable)
+## 4 · 🎯 SUCCESS METRICS (CI-ENFORCED)
 
-## 🛡️ GUARD-RAILS STATUS
+*   **CI Badge:** ![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg?branch=sprint-{{number}})
+*   **LOC Budget:** `scripts/ci/check_loc_budget.sh {{loc_budget}}` must pass.
+*   **New Dependencies:** `{{dep_script}}` must pass.
+*   **Test Execution & Coverage:** `pytest --cov=src --cov-fail-under={{coverage_min}} -k {{test_pattern}}` must pass.
+*   **Linter:** `ruff format --check` and `ruff --fail-level error` must pass.
 
-### Guard-Rail 1: CI-Enforced Validation ✅
-**Status**: Active - All claims verified by GitHub Actions, not chat
+---
 
-### Guard-Rail 2: No Demo Data ⚠️
-**Status**: Enforced - Prompts forbid sample data generation
+## 5. Post-Sprint Mandates & Anti-Fabrication
 
-### Guard-Rail 3: Golden Path Script 🎯
-**Status**: Ready - End-to-end validation available
+### 🔒 Guard-Rails
+*   All rules in [`Docs/PROCESS/guardrails.md`](../PROCESS/guardrails.md) apply by reference.
 
-### Guard-Rail 4: Validation Decorators 🔒
-**Status**: Implemented - Critical modules protected
+### ✍️ Codex Self-Reflection & Commit Rules
+*   A root cause analysis (RCA) and reflection markdown file **is mandatory**.
+*   Commit messages must start with `feat(sprint{{number}}):` or `fix(sprint{{number}}):`.
 
-### Guard-Rail 5: Test-First Development ✅
-**Status**: Mandatory - Tests before implementation
-
-## 🧪 TEST-FIRST DEVELOPMENT
-
-### Step 1: Create Failing Tests (Required)
-```python
-# File: tests/integration/test_sprint_[NUMBER].py
-import pytest
-
-class TestSprint[NUMBER]:
-    """Tests that define this sprint's success criteria"""
-    
-    def test_[specific_functionality](self):
-        """Test that [specific feature] works as expected"""
-        # This should fail initially
-        assert False, "[Feature] not yet implemented"
-    
-    def test_no_fabrication_introduced(self):
-        """Test that no fabricated content was created"""
-        from scripts.ai_honesty_lint import scan_for_fabrication
-        assert scan_for_fabrication(), "Fabrication detected"
-```
-
-### Step 2: Implementation (Only After Tests Written)
-```
-# IMPLEMENTATION TASKS GO HERE
-# But only after failing tests are created
-```
-
-## 🛠️ SPRINT TASKS (60 MINUTES)
-
-### Task 1: [TASK_NAME] ([TIME] minutes)
-
-**[TASK_DESCRIPTION]**
-
-**Implementation Steps:**
-1. **Create failing test** (required first):
-   ```python
-   # File: tests/[appropriate_location]/test_[feature].py
-   def test_[feature]():
-       # Test that defines success criteria
-       assert [condition], "[Feature] not working"
-   ```
-
-2. **Implement functionality** (make test pass):
-   ```python
-   # Implementation code here
-   # Import validation decorators if creating result files
-   from spiceflow_navigator.core.validation import ensure_transcription_ready
-   
-   @ensure_transcription_ready
-   def create_results():
-       # This decorator prevents execution without transcription validation
-       pass
-   ```
-
-**Acceptance Criteria:**
-- [ ] Test passes in CI
-- [ ] No fabrication patterns detected
-- [ ] Validation decorators used where appropriate
-- [ ] No new files under `data/` except validation proof
-
-### Task 2: [TASK_NAME] ([TIME] minutes)
-
-**[TASK_DESCRIPTION]**
-
-**Implementation Steps:**
-1. **Create failing test** (required first)
-2. **Implement functionality** (make test pass)
-
-**Acceptance Criteria:**
-- [ ] Test passes in CI
-- [ ] AI honesty linting passes
-- [ ] Golden path validation attempted (if applicable)
-
-### Task 3: [TASK_NAME] ([TIME] minutes)
-
-**[TASK_DESCRIPTION]**
-
-**Implementation Steps:**
-1. **Create failing test** (required first)
-2. **Implement functionality** (make test pass)
-
-**Acceptance Criteria:**
-- [ ] Test passes in CI
-- [ ] No fabricated content created
-- [ ] Documentation updated only after tests pass
-
-### Task 4: Documentation Update ([TIME] minutes)
-
-**Update Documentation (Only After Implementation Proven)**
-
-**Implementation Steps:**
-1. **Verify all tests pass**
-2. **Run golden path validation**
-3. **Update documentation with proven functionality only**
-
-**Acceptance Criteria:**
-- [ ] Documentation reflects only proven functionality
-- [ ] No claims made without test verification
-- [ ] Status badges updated in README
-
-## 🎯 SUCCESS METRICS (CI-Enforced)
-
-- **All Tests Pass**: pytest -q shows green across all test suites
-- **No Fabrication**: scripts/ai_honesty_lint.py reports clean
-- **Golden Path**: End-to-end validation attempted (result documented)
-- **Honest Documentation**: Claims backed by passing tests only
-- **CI Pipeline**: GitHub Actions shows all checks passing
-
-## 📈 PRODUCT VISION ALIGNMENT
-
-**EXECUTABLE TRUTH**: This sprint advances the product through verified functionality only. Chat claims and documentation mean nothing without passing tests and CI validation.
-
-**ANTI-FABRICATION**: Every deliverable is backed by automated verification. The system forces honesty and prevents phantom progress.
-
-**TEST-DRIVEN REALITY**: Tests define success criteria before implementation begins. This ensures we build what we actually need and can verify.
+### ✨ Golden Path Script
+{% if require_golden_path %}
+*   The Golden Path script (`scripts/run_full_pipeline.py`) is **required** and must pass.
+{% else %}
+*   The Golden Path script is **not required** for this sprint.
+{% endif %}
 
 ## 🚨 CODEX PROMPT TEMPLATE
 
