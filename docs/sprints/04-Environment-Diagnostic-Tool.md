@@ -1,0 +1,81 @@
+# Spiceflow Navigator Sprint Plan 
+## (Version 2.0 - Blended PM & Eng)
+
+---
+
+# Sprint 4: Environment Diagnostic Tool
+
+## 1. Sprint Review & Retrospective (The "Outer Loop")
+
+### Product Manager's Two-Paragraph Review
+
+**Paragraph 1: Progress & Status**
+> Sprint 3 was a mission failure but an intelligence success. The agent correctly identified that the execution environment lacks both network access (to install dependencies) and secret injection, which are the root causes of our previous failures. Its post-sprint analysis was exemplary and provides a clear path forward. While we remain at 0% functional progress, we have moved from "unknown unknowns" to "known knowns" regarding our environment's limitations.
+
+**Paragraph 2: Blockers, Costs & Decisions**
+> The blocker is the environment itself. The decision is to pause all application-level feature development and dedicate this sprint to building a diagnostic tool, as recommended by the agent. This tool will give us a repeatable, automated way to probe the environment's capabilities. This sprint will incur no API costs and is a critical investment in our own development infrastructure.
+
+### Next Steps & Human-in-the-Loop Flags
+*   [ ] Build a standalone diagnostic script.
+*   [ ] The script will check for dependency availability.
+*   [ ] The script will check for secret availability.
+*   [ ] The script will print a clear, human-readable report.
+*   [ ] 🚩 **FLAG**: The output of this script is a critical deliverable that will require human review to understand the environment's constraints.
+
+---
+
+## 2. Sprint Goal & Strategic Alignment
+
+### 60-Minute Focus: Create a standalone Python script that diagnoses the execution environment and prints a clear report on dependency and secret availability.
+
+### Product Vision Alignment
+> A reliable solution cannot be built in an unreliable environment. This sprint embodies the "Less is More" philosophy by focusing on simplicity and verifiable truth. Instead of fighting the environment, we will build a tool to understand it. This diagnostic script will become a foundational piece of our CI/CD process, ensuring that all future development is built on a known, validated foundation.
+
+---
+
+## 3. Sprint Tasks & Acceptance Criteria (The "Inner Loop")
+
+### Task 1: Create the Diagnostic Script (40 minutes)
+*   **Description**: Create a single, standalone Python script with zero external dependencies. The script will probe the environment and generate a report.
+*   **Acceptance Criteria**:
+    *   [ ] A new file is created at `scripts/diagnose_environment.py`.
+    *   [ ] The script uses **only** built-in Python libraries (`os`, `sys`, `importlib.util`, etc.). It must **not** import any packages from `requirements.txt`.
+    *   [ ] The script will define a list of required packages (e.g., `["pytest", "requests", "python-dotenv", "feedparser"]`).
+    *   [ ] For each package, the script will check if it can be imported. It will store a `PASS` or `FAIL` status for each.
+    *   [ ] The script will check if the `RUNPOD_ENDPOINT` environment variable is set and is a non-empty string. It will store a `PASS` or `FAIL` status.
+    *   [ ] The script will check for network connectivity by attempting a simple `http.client` connection to a common public host like `www.google.com` on port 80. It will store a `PASS` or `FAIL` status.
+
+### Task 2: Implement a Clear Reporting Function (10 minutes)
+*   **Description**: The script must print its findings in a clear, easy-to-read markdown-formatted report to standard output.
+*   **Acceptance Criteria**:
+    *   [ ] The script, when run, prints a report that looks similar to the example below.
+    *   [ ] The report uses markers like `✅` (PASS) and `❌` (FAIL) for clarity.
+    *   [ ] If the `RUNPOD_ENDPOINT` is found, the script prints its first 12 characters and redacts the rest (e.g., `https://vp4c...`).
+
+**Example Output Format:**
+```markdown
+# Environment Diagnostic Report
+
+## Dependency Check
+*   [✅] pytest
+*   [❌] requests
+*   [✅] python-dotenv
+*   [❌] feedparser
+
+## Secrets Check
+*   [❌] RUNPOD_ENDPOINT: Not Found
+
+## Network Check
+*   [❌] Internet Connectivity: Failed to connect to www.google.com
+
+## Summary
+*   **Conclusion:** The environment is missing critical dependencies and network access.
+*   **Action Required:** Please ensure dependencies are pre-installed or that network access is enabled. `RUNPOD_ENDPOINT` must be injected as a secret.
+```
+
+### Task 3: Write Mandatory Post-Sprint Analysis (10 minutes)
+*   **Description**: Write the mandatory reflection document for this sprint, analyzing the results of the diagnostic tool.
+*   **Acceptance Criteria**:
+    *   [ ] A new file is created at `docs/sprints/sprint_04_reflection.md`.
+    *   [ ] The reflection follows the structured "Root Cause Analysis" format.
+    *   [ ] The reflection's "Observation" section **must include the full, raw text output** generated by the `diagnose_environment.py` script. This is the primary evidence for the sprint. 
