@@ -30,3 +30,31 @@ jobs:
           RUNPOD_ENDPOINT: ${{ secrets.RUNPOD_ENDPOINT }}
           RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
         run: python scripts/run_e2e_transcription.py
+
+  produce-transcript:
+    if: github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Transcribe short clip
+        env:
+          CI: 'true'
+          RUNPOD_ENDPOINT: ${{ secrets.RUNPOD_ENDPOINT }}
+        run: python scripts/chunk_and_transcribe.py
+      - name: Commit transcript
+        run: |
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add 30s_clip.json
+          git commit -m "Add CI transcript [skip ci]"
+          git push

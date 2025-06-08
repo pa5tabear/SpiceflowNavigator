@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 import subprocess
 import requests
@@ -7,8 +8,14 @@ from spiceflow.rss_parser import RSSParser
 from spiceflow.clients.runpod_client import RunPodClient
 
 FEED_URL = "https://feeds.acast.com/public/shows/65bac3af03341c00164bf93b"
-OUTPUT_AUDIO = Path("latest_shift_key_10m.mp3")
-TRANSCRIPT_PATH = Path("latest_shift_key_10m.json")
+
+CI_MODE = os.getenv("CI") == "true"
+CLIP_SECONDS = 30 if CI_MODE else 600
+
+OUTPUT_AUDIO = (
+    Path("latest_shift_key_30s.mp3") if CI_MODE else Path("latest_shift_key_10m.mp3")
+)
+TRANSCRIPT_PATH = Path("30s_clip.json") if CI_MODE else Path("10m_clip.json")
 
 
 def fetch_latest_episode_url() -> str:
@@ -28,7 +35,7 @@ def download_clip(url: str, path: Path) -> None:
         "-i",
         url,
         "-t",
-        "600",
+        str(CLIP_SECONDS),
         "-acodec",
         "copy",
         str(path),
