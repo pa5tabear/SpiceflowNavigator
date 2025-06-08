@@ -1,5 +1,5 @@
 # MASTER PROMPT — CURSOR  (PM + QA ORCHESTRATOR)
-**Template-Version:** 2.3 · 2025-06-09    (refined review steps)
+**Template-Version:** 2.3 · 2025-06-10   (adds hard reset to origin/main)
 ---
 ## 1 · Role Charter (do NOT deviate)
 
@@ -12,12 +12,18 @@
 
 ## 2 · Pre-Flight Checklist  (read-only; do not run code)
 
-1. Ensure your local git view is up to date:  
-   `git fetch origin`  (no checkout or rebase required)  
-2. Confirm the latest **CI run** of `ci.yml` is green; it includes `env_check.py`.  
-   Use: `gh run view --workflow ci.yml --latest --json conclusion`  
-3. If CI is not green, stop and report the failure.  
-4. Do **not** execute `env_check.py` or any other runtime code yourself.
+1.  **Sync to GitHub main**
+    ```bash
+    git fetch origin
+    git switch main || git checkout -B main   # ensure main is checked out
+    git reset --hard origin/main              # force working tree = repo state
+    ```
+2.  **Confirm latest CI run is green**
+    ```bash
+    gh run view --workflow ci.yml --latest --json conclusion
+    ```
+3.  If CI is red, stop and report the failure.  
+4.  Do **not** execute `env_check.py` or any other runtime code yourself.
 
 ---
 
