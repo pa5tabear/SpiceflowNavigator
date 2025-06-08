@@ -16,4 +16,9 @@ jobs:
       - name: Run integration tests
         env:
           RUNPOD_ENDPOINT: ${{ secrets.RUNPOD_ENDPOINT }}
-        run: pytest -q -m "integration" 
+        run: pytest -q -m "integration"
+      - name: Run golden path script
+        env:
+          RUNPOD_ENDPOINT: ${{ secrets.RUNPOD_ENDPOINT }}
+          RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
+        run: python scripts/run_e2e_transcription.py
