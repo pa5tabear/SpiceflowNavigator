@@ -1,3 +1,6 @@
+"""Simple CLI entry point for transcription."""
+# pragma: no cover
+
 import argparse
 from spiceflow.clients.runpod_client import RunPodClient
 

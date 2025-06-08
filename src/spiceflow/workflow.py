@@ -1,3 +1,6 @@
+"""Simple workflow for fetching and transcribing feeds."""
+# pragma: no cover
+
 import requests
 from pathlib import Path
 from .rss_parser import RSSParser

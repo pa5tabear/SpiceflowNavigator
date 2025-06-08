@@ -1,0 +1,53 @@
+import json
+from pathlib import Path
+import subprocess
+import requests
+
+from spiceflow.rss_parser import RSSParser
+from spiceflow.clients.runpod_client import RunPodClient
+
+FEED_URL = "https://feeds.acast.com/public/shows/65bac3af03341c00164bf93b"
+OUTPUT_AUDIO = Path("latest_shift_key_10m.mp3")
+TRANSCRIPT_PATH = Path("latest_shift_key_10m.json")
+
+
+def fetch_latest_episode_url() -> str:
+    resp = requests.get(FEED_URL, timeout=10)
+    resp.raise_for_status()
+    parser = RSSParser()
+    urls = parser.extract_audio_urls(resp.text)
+    if not urls:
+        raise RuntimeError("No audio URLs found")
+    return urls[0]
+
+
+def download_clip(url: str, path: Path) -> None:
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-i",
+        url,
+        "-t",
+        "600",
+        "-acodec",
+        "copy",
+        str(path),
+    ]
+    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def transcribe_clip(path: Path) -> str:
+    client = RunPodClient()
+    text = client.transcribe(str(path))
+    TRANSCRIPT_PATH.write_text(json.dumps({"transcript": text}))
+    return text
+
+
+def main() -> None:
+    url = fetch_latest_episode_url()
+    download_clip(url, OUTPUT_AUDIO)
+    transcribe_clip(OUTPUT_AUDIO)
+
+
+if __name__ == "__main__":
+    main()

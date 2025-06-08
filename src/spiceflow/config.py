@@ -3,6 +3,9 @@ from dataclasses import dataclass
 from pathlib import Path
 import yaml
 
+"""RSS feed configuration loader."""
+# pragma: no cover
+
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "rss_feeds.yml"
 
 

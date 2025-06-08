@@ -9,8 +9,9 @@ from spiceflow.clients.runpod_client import RunPodClient
 
 
 class DummyClient:
-    def __init__(self, endpoint):
+    def __init__(self, endpoint, timeout=300):
         self.endpoint = endpoint
+        self.timeout = timeout
         self.calls = []
 
     def predict(self, *args, **kwargs):
@@ -28,7 +29,7 @@ def test_init_from_env(monkeypatch):
     dummy = DummyClient("http://api")
     monkeypatch.setenv("RUNPOD_ENDPOINT", "http://api")
     monkeypatch.setattr(
-        "spiceflow.clients.runpod_client.Client", lambda endpoint: dummy
+        "spiceflow.clients.runpod_client.Client", lambda endpoint, timeout=300: dummy
     )
     client = RunPodClient()
     assert client.endpoint == "http://api"
@@ -38,18 +39,14 @@ def test_init_from_env(monkeypatch):
 def test_transcribe_calls_predict(monkeypatch):
     dummy = DummyClient("http://api")
     monkeypatch.setattr(
-        "spiceflow.clients.runpod_client.Client", lambda endpoint: dummy
+        "spiceflow.clients.runpod_client.Client", lambda endpoint, timeout=300: dummy
     )
     client = RunPodClient("http://api")
-    monkeypatch.setattr(
-        "spiceflow.clients.runpod_client.requests.get",
-        lambda url, timeout=10: types.SimpleNamespace(raise_for_status=lambda: None),
-    )
-    result = client.transcribe("file.wav")
+    result = client.transcribe("file.wav", stream=True)
     assert result == "dummy-result"
     assert dummy.calls == [
         (
             ("file.wav", "Systran/faster-whisper-large-v3", "transcribe", 0.0),
-            {"stream": False, "api_name": "/predict"},
+            {"stream": True, "api_name": "/predict"},
         )
     ]
