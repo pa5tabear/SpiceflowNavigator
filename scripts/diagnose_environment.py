@@ -3,7 +3,10 @@ import importlib.util
 import http.client
 from typing import List, Dict
 
-REQUIRED_PACKAGES = ["pytest", "requests", "python-dotenv", "feedparser"]
+# "python-dotenv" is installed as the module "dotenv". Checking for the actual
+# importable module name ensures the dependency check accurately reflects the
+# installation status.
+REQUIRED_PACKAGES = ["pytest", "requests", "dotenv", "feedparser"]
 
 
 def check_dependencies(packages: List[str]) -> Dict[str, bool]:
