@@ -1,9 +1,9 @@
 ---
 number: 26
-title: "EMERGENCY FIX (ATTEMPT 3): Correctly Commit Transcript from CI"
-goal: "Diagnose and fix the CI workflow to ensure it can successfully commit the generated transcript file back to the `main` branch."
+title: "CI Workflow: Auto-PR for New Transcripts"
+goal: "Create a CI job that, on pushes to main, automatically generates a new PR with the latest 30-second podcast transcript."
 focus_minutes: 60
-loc_budget: 75
+loc_budget: 120 # covers YAML and script changes
 test_pattern: "n/a"
 template_version: 1.2 (2025-06-10)
 require_golden_path: false
@@ -11,39 +11,40 @@ coverage_min: 0
 dep_script: scripts/ci/check_new_deps.sh
 ---
 
-# Sprint 26 · EMERGENCY FIX (ATTEMPT 3): Correctly Commit Transcript from CI
+# Sprint 26 · CI Workflow: Auto-PR for New Transcripts
 
 ## 1 · Sprint Goal & Alignment
-**Goal:** Diagnose and fix the CI workflow to ensure it can successfully commit the generated transcript file back to the `main` branch.
+**Goal:** Create a CI job that, on pushes to main, automatically generates a new PR with the latest 30-second podcast transcript.
 
 **Product Vision Alignment:** 
-> This is a **project-critical infrastructure fix**. The project is blocked and cannot move forward until we have a reliable, automated pipeline that produces our core data artifacts. This is our third attempt at this task, and its success is the only priority.
+> This sprint builds a fully automated, robust data pipeline. By creating a pull request instead of pushing to main, we work with our security model, not against it. This creates a safe, auditable process for ingesting real-world data, which is the foundation of our product.
 
 ---
 
 ## 2 · Tasks & Acceptance Criteria
 
 ### Pre-flight (must pass before Task 1)
-- [ ] The repeated failure of the `produce-transcript` CI job has been acknowledged.
+- [ ] The failure of the "direct push to main" approach is understood.
 
 ### Task Table (Rule of Three)
 
 | # | Task | Key Acceptance Criteria (Enforced by CI) |
 |---|---|---|
-| 1 | **Diagnose Push Failure** | Investigate the logs from the `produce-transcript` job in Sprint 25 to find the root cause of the `git push` failure. The cause is likely related to either git credentials, user configuration, or branch protection rules. |
-| 2 | **Implement & Test Fix** | Modify the `.github/workflows/ci.yml` file to fix the push issue. The fix will likely involve correctly configuring the `github-actions` bot user and ensuring it has the necessary permissions. |
-| 3 | **Verify the Bot Commit** | A new PR containing the fix must be created. After merging, a new commit authored by `github-actions[bot]` **must** appear on the `main` branch, and it must contain the `30s_clip.json` file. |
+| 1 | **Update CI Workflow for Auto-PR** | Modify `.github/workflows/ci.yml`. The new `produce-transcript` job must:<br>- Have `permissions` for `contents: write` and `pull-requests: write`.<br>- Run only on pushes to `main` where the actor is not the bot.<br>- Create a new branch, commit the transcript, and push the branch. |
+| 2 | **Open PR via `gh` CLI** | The CI job must use the `gh pr create` command to open a pull request from the new data branch to `main`. The PR should be labeled appropriately (e.g., `automation`, `data`). |
+| 3 | **Ensure Script Saves to Correct Path** | The `scripts/chunk_and_transcribe.py` script must save its output to a structured path like `transcripts/shift_key/latest_30s.json` to avoid naming collisions. |
 
 ---
 
 ## 3 · New or Changed Interfaces
 | Interface / Component | Change Description | Contract (Inputs / Outputs) |
 |---|---|---|
-| `.github/workflows/ci.yml` | The `produce-transcript` job will be modified to correctly authenticate and push a commit. | N/A |
+| `.github/workflows/ci.yml` | The `produce-transcript` job is replaced with a new, more robust version that creates a Pull Request. | N/A |
 
 ---
 
 ## 4 · 🎯 SUCCESS METRICS (CI-ENFORCED)
 
 *   **CI Badge:** The `ci.yml` workflow on `main` must remain green.
-*   **Bot Commit Exists:** A `git log` on the `main` branch after the sprint MUST show a commit authored by `github-actions[bot]`. 
+*   **Pull Request Created:** A new Pull Request, authored by `github-actions[bot]`, must be automatically opened after the sprint is merged.
+*   **PR Contains Artifact:** The new PR must contain the `latest_30s.json` transcript file. 
