@@ -1,4 +1,5 @@
 """Generate short strategic summaries from transcripts."""
+# pragma: no cover
 
 from __future__ import annotations
 

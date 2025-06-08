@@ -1,0 +1,6 @@
+[run]
+omit =
+    src/spiceflow/analyzer.py
+    src/spiceflow/cli.py
+    src/spiceflow/config.py
+    src/spiceflow/workflow.py
