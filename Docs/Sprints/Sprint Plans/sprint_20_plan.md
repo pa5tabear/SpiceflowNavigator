@@ -30,7 +30,7 @@ dep_script: scripts/ci/check_new_deps.sh
 ### Task Table (Rule of Three)
 | # | Task | Key Acceptance Criteria (Enforced by CI) |
 |---|---|---|
-| 1 | **Refactor `runpod_client`** | `src/spiceflow/clients/runpod_client.py` is modified to contain only one public method: `transcribe(file: Path) -> str`. All API key logic and `status()` polling methods are removed. |
+| 1 | **Refactor `runpod_client`** | `src/spiceflow/clients/runpod_client.py` is modified to contain only one public method: `transcribe(file: Path) -> str`. The client should call the Gradio `predict` endpoint with `stream=False`. All API key logic and `status()` polling methods are removed. |
 | 2 | **Create Integration Test** | A new integration test, `tests/integration/test_transcribe_proxy.py`, is created. It calls `transcribe()` with `tests/fixtures/sample.mp3` and asserts the returned string contains the word "climate". |
 | 3 | **Update Health Checks** | The health-check test is updated to perform a `GET` on the proxy's root URL and assert the status code is less than 500. `env_check.py` is modified to remove any checks for `RUNPOD_API_KEY`. |
 
