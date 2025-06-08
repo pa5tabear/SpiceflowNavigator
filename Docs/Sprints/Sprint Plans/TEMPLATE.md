@@ -60,7 +60,7 @@ dep_script: scripts/ci/check_new_deps.sh
 ## 5. Post-Sprint Mandates & Anti-Fabrication
 
 ### 🔒 Guard-Rails
-*   All rules in [`Docs/PROCESS/guardrails.md`](../PROCESS/guardrails.md) apply by reference.
+*   All rules in [`Docs/PROCESS/guardrails.md`](../../PROCESS/guardrails.md) apply by reference.
 
 ### ✍️ Codex Self-Reflection & Commit Rules
 *   A root cause analysis (RCA) and reflection markdown file **is mandatory**.
