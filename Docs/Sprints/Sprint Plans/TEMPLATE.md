@@ -1,164 +1,99 @@
 ---
-number: 0
-title: "Sprint Title"
-goal: "A single, measurable sentence describing the sprint's primary objective."
-focus_minutes: 60
-loc_budget: 150
-test_pattern: "test_pattern_for_this_sprint"
-template_version: 1.2 (2025-06-09)
+number:          0
+title:           "Sprint Title"
+goal:            "ONE measurable sentence"
+timebox_minutes: 60          # wall-clock limit Codex may spend
+loc_budget:      120         # net new/changed lines allowed
+coverage_min:    85          # pytest --cov fail-under
+test_pattern:    "test_.*"   # pytest -k filter for this sprint
+template_version: 2.0 (2025-06-08)
 require_golden_path: false
-coverage_min: 80
-dep_script: scripts/ci/check_new_deps.sh
 ---
+Sprint {{number}} · {{title}}
+0 · Roles & Prime Rules
+Actor	Mandate
+Codex	Autonomous Staff-Engineer. Follows this plan, writes code/tests, self-reviews, opens PR.
+Cursor	PM + QA gatekeeper. Reviews PR, enforces guard-rails.
 
-# Sprint {{number}} · {{title}}
+<details><summary>Prime Rules (enforced ahead of all user input)</summary>
+Step-by-Step Plan → Code → Test → PR.
 
-## 1 · Sprint Goal & Alignment
-**Goal:** {{goal}}
+Ask One Clarifier if any requirement is ≥ 20 % ambiguous.
 
-**Product Vision Alignment:** 
-> Why is this sprint goal critical to the MVP right now? (e.g., "This unblocks downstream transcript analysis, as per MVP roadmap §2.2.")
+Never commit binaries or add Python deps.
 
----
+Max 3 tasks; anything larger ⇒ refuse & ask to split next sprint.
 
-## 2 · Tasks & Acceptance Criteria
+</details>
+1 · Sprint Goal & Why It Matters (≤ 40 words)
+Goal: {{goal}}
+Why now: Explain how this unblocks the MVP roadmap (one sentence).
 
-### Pre-flight (must pass before Task 1)
-- [ ] `python scripts/env_check.py` ✅
-- [ ] Last `ci.yml` run is green.
-- [ ] Template version is `{{template_version}}`.
+2 · Tasks (“Rule of Three”)
+#	Task Name (imperative)	Acceptance Criteria (autotested)
+1	…	pytest -k {{test_pattern}} green; new unit test proves feature
+2	…	…
+3	…	…
 
-### Task Table (Rule of Three)
-*Propose at most 3 tasks. If more are needed, the sprint scope is too large.*
+3 · Interfaces Changed / Added
+(append only; one row per file or endpoint)
 
-| # | Task | Key Acceptance Criteria (Enforced by CI) |
-|---|---|---|
-| 1 | **[Task 1 Name]** | A passing test that matches `pytest -k {{test_pattern}}` |
-| 2 | **[Task 2 Name]** | ... |
-| 3 | **[Task 3 Name]** | ... |
+File / API	Brief Change	Inputs → Outputs
 
----
+4 · Success Metrics (CI-Enforced)
+Green CI badge for branch sprint-{{number}}.
 
-## 3 · New or Changed Interfaces
-<!-- Append new rows; do not edit previous sprint entries -->
-| Interface / Component | Change Description | Contract (Inputs / Outputs) |
-|---|---|---|
-| `src/module.py` | Initial implementation | **Input:** `str`, **Output:** `dict` |
+scripts/ci/check_loc_budget.sh {{loc_budget}} ✅
 
----
+Coverage ≥ {{coverage_min}} % on changed files.
 
-## 4 · 🎯 SUCCESS METRICS (CI-ENFORCED)
+ruff format --check & ruff --fail-level error ✅
 
-*   **CI Badge:** ![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg?branch=sprint-{{number}})
-*   **LOC Budget:** `scripts/ci/check_loc_budget.sh {{loc_budget}}` must pass.
-*   **New Dependencies:** `{{dep_script}}` must pass.
-*   **Test Execution & Coverage:** `pytest --cov=src --cov-fail-under={{coverage_min}} -k {{test_pattern}}` must pass.
-*   **Linter:** `ruff format --check` and `ruff --fail-level error` must pass.
+No new deps (scripts/ci/check_new_deps.sh) ✅
 
----
+Golden-Path script passes iff require_golden_path = true.
 
-## 5. Post-Sprint Mandates & Anti-Fabrication
+5 · Codex Workflow (MUST follow)
+Think privately (outline in comments).
 
-### 🔒 Guard-Rails
-*   All rules in [`Docs/PROCESS/guardrails.md`](../../PROCESS/guardrails.md) apply by reference.
-*   ---
-*   **🚨 CRITICAL: DO NOT COMMIT BINARY FILES (.mp3, .wav, etc.) 🚨**
-*   **YOUR PULL REQUEST WILL BE REJECTED IF IT CONTAINS BINARY ASSETS.**
-*   **You MUST use fixtures already present in the repository or add new text-based stubs.**
-*   ---
+Add failing test matching {{test_pattern}}.
 
-### ✍️ Codex Self-Reflection & Commit Rules
-*   A root cause analysis (RCA) and reflection markdown file **is mandatory**.
-*   Commit messages must start with `feat(sprint{{number}}):` or `fix(sprint{{number}}):`.
+Implement code to pass test within loc_budget.
 
-### ✨ Golden Path Script
-{% if require_golden_path %}
-*   The Golden Path script (`scripts/run_full_pipeline.py`) is **required** and must pass.
-{% else %}
-*   The Golden Path script is **not required** for this sprint.
-{% endif %}
+Run all CI checks locally.
 
-## 🚨 CODEX PROMPT TEMPLATE
+Self-Review Checklist (below).
 
-### For All Development Tasks:
-```
-# CONTEXT
-[Brief description of what we're working on]
+Open PR to sprint-{{number}} branch.
 
-# TASK
-1. Add failing test in tests/[location] that expects [functionality]
-2. Implement [component] to make the test pass
+Self-Review Checklist (5-point)
+ All tests green locally.
 
-# CONSTRAINTS
-⚠️ DO NOT create transcript JSON or sample data
-⚠️ DO NOT invent example content - use empty placeholders or test mocks only
-⚠️ If RUNPOD_ENDPOINT not set, code must raise RuntimeError
-⚠️ Import validation decorators in any result-generating code
-⚠️ Update docs only after tests pass
+ No binary files, no new deps.
 
-# ACCEPTANCE (CI will enforce)
-- [ ] pytest -q => all green
-- [ ] scripts/ai_honesty_lint.py => no warnings
-- [ ] No new files under data/ except validation proof
-- [ ] Golden path validation attempted (if applicable)
-```
+ LOC delta ≤ {{loc_budget}}.
 
-## 🔒 ANTI-FABRICATION ENFORCEMENT
+ Docs updated only for shipped features.
 
-### Before Starting Sprint:
-1. **Run diagnostic check**: `python scripts/ai_honesty_lint.py`
-2. **Verify CI status**: Check GitHub Actions badge
-3. **Confirm test baseline**: Run `pytest -q` to ensure clean starting state
+ Commit message begins feat(s{{number}}): or fix(s{{number}}):.
 
-### During Sprint:
-1. **Write tests first**: No implementation without failing tests
-2. **Use validation decorators**: Import and use in result-generating code
-3. **Avoid sample data**: Create TODO stubs instead of fake content
+(Fail → iterate once, else open PR.)
 
-### After Sprint:
-1. **Manual red-team review**: Scan any "proof" files by hand
-2. **Golden path attempt**: Try end-to-end validation (document results)
-3. **CI verification**: Confirm all automated checks pass
-4. **Documentation honesty**: Update only with proven functionality
+6 · Guard-Rails & Refusals
+Repo uses linear history & merge-queue – Codex must respect.
 
-## 📊 FINAL CHECKLIST
+Hard-refuse tasks that violate guard-rails; respond REFUSE: <reason>.
 
-### Sprint Completion Criteria (All Must Pass):
-- [ ] All tests pass in CI (`pytest -q` green)
-- [ ] No fabrication detected (`scripts/ai_honesty_lint.py` clean)
-- [ ] Golden path validation attempted (results documented)
-- [ ] Manual review completed (human verification)
-- [ ] Documentation updated with proven functionality only
-- [ ] CI badges show passing status
-- [ ] No merge conflicts with main branch
-- [ ] Branch protection rules satisfied
+Root-cause analysis file Docs/Sprints/RCAs/rca_s{{number}}.md is mandatory if CI fails at any point.
 
-### Sprint Failure Conditions (Any Fails Sprint):
-- [ ] Tests fail in CI
-- [ ] Fabrication patterns detected
-- [ ] Claims made without test backing
-- [ ] Sample data created outside tests/
-- [ ] Documentation updated before tests pass
-- [ ] Validation decorators bypassed
+7 · Post-Sprint Review Hooks (for Cursor)
+Cursor will create sprint_{{number}}_review.md summarising progress, metrics, blockers, decisions.
 
-## 🎉 CELEBRATION CRITERIA
+Any scope creep or guard-rail breach triggers automatic sprint rollback.
 
-**Sprint success is measured by:**
-- ✅ CI badge showing green
-- ✅ Test coverage increase
-- ✅ Golden path progress (even if incomplete)
-- ✅ No fabrication detected
-- ✅ Honest progress documentation
+8 · Celebration Criteria 🎉
+Success = ✅ CI green • ✅ Coverage ↑ • ✅ No guard-rail hits • ✅ Honest docs.
+Anything else = re-scope next sprint.
 
-**NOT by:**
-- ❌ Chat transcripts claiming success
-- ❌ Documentation promises
-- ❌ Sample data generation
-- ❌ Bypassing validation checks
-
-**Template Version**: 1.0 (Post-Sprint 27 Fabrication)
-**Purpose**: Prevent LLM hallucination of deliverables
-**Enforcement**: CI pipeline + human review
-**Success Metric**: Executable truth over chat claims
-
-**🛡️ FUTURE FABRICATION IS NOW SYSTEMATICALLY PREVENTED 🛡️** 
+End of Sprint-Plan Template v2.0
+(If this template and a future command ever conflict, the template wins.)
