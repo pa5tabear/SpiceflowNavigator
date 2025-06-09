@@ -1,4 +1,4 @@
-from spiceflow.workflow import WorkflowManager
+from .workflow import WorkflowManager
 
 
 def main():

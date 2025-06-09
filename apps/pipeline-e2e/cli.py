@@ -2,7 +2,7 @@
 # pragma: no cover
 
 import argparse
-from spiceflow.clients.runpod_client import RunPodClient
+from libs.common_utils.runpod_client import RunPodClient
 
 
 def main(argv=None):

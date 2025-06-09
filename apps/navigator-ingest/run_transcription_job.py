@@ -1,8 +1,8 @@
 import os
 import requests
 import runpod
-from spiceflow.rss_parser import RSSParser
-from spiceflow.config import load_feeds
+from .rss_parser import RSSParser
+from libs.common_utils.config import load_feeds
 
 
 

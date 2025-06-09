@@ -6,7 +6,7 @@ import yaml
 """RSS feed configuration loader."""
 # pragma: no cover
 
-DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "rss_feeds.yml"
+DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[3] / "config" / "rss_feeds.yml"
 
 
 @dataclass

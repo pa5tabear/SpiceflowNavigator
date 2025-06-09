@@ -3,8 +3,8 @@
 
 import requests
 from pathlib import Path
-from .rss_parser import RSSParser
-from .clients.runpod_client import RunPodClient
+from apps.navigator_ingest.rss_parser import RSSParser
+from libs.common_utils.runpod_client import RunPodClient
 
 
 class WorkflowManager:
