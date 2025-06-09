@@ -1,0 +1,19 @@
+# Global defaults
+* @pa5tabear
+
+# Agent-specific ownership
+/apps/pipeline-e2e/*      @pa5tabear
+/apps/navigator-ingest/*  @pa5tabear  
+/apps/navigator-strategy/* @pa5tabear
+/apps/navigator-ui/*      @pa5tabear
+
+# Shared libraries require extra review
+/libs/*                   @pa5tabear
+
+# Infrastructure and configuration
+/infrastructure/*         @pa5tabear
+/.github/*               @pa5tabear
+/config/*                @pa5tabear
+
+# Documentation
+/docs/*                  @pa5tabear 

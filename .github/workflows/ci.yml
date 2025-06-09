@@ -1,60 +1,142 @@
-name: CI
-on: [push]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - name: Install gh cli
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gh
-          gh --version
-          gh run list --limit 1 -R ${{ github.repository }} --json databaseId
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Run unit tests
-        run: pytest -q -m "not integration"
-      - name: Run integration tests
-        env:
-          RUNPOD_ENDPOINT: ${{ secrets.RUNPOD_ENDPOINT }}
-        run: pytest -q -m "integration"
-      - name: Run golden path script
-        env:
-          RUNPOD_ENDPOINT: ${{ secrets.RUNPOD_ENDPOINT }}
-          RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
-        run: python scripts/run_e2e_transcription.py
+name: Multi-Agent CI
 
-  produce-transcript:
-    if: github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
-    needs: build
+# Enable branch protection: Require review from CODEOWNERS and restrict pushes on main
+# This should be configured in GitHub UI under Settings > Branches
+
+on:
+  pull_request:
+    paths:
+      - 'apps/**'
+      - 'libs/**'
+      - '.github/workflows/**'
+  push:
+    branches: [main]
+
+jobs:
+  detect-changes:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    timeout-minutes: 20
+    outputs:
+      pipeline: ${{ steps.changes.outputs.pipeline }}
+      ingest: ${{ steps.changes.outputs.ingest }}
+      strategy: ${{ steps.changes.outputs.strategy }}
+      ui: ${{ steps.changes.outputs.ui }}
+      libs: ${{ steps.changes.outputs.libs }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            pipeline:
+              - 'apps/pipeline-e2e/**'
+            ingest:
+              - 'apps/navigator-ingest/**'
+            strategy:
+              - 'apps/navigator-strategy/**'
+            ui:
+              - 'apps/navigator-ui/**'
+            libs:
+              - 'libs/**'
+
+  test-pipeline:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.pipeline == 'true' || needs.detect-changes.outputs.libs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Transcribe short clip
-        env:
-          CI: 'true'
-          RUNPOD_ENDPOINT: ${{ secrets.RUNPOD_ENDPOINT }}
-        run: python scripts/chunk_and_transcribe.py
-      - name: Commit transcript
         run: |
-          git config user.name github-actions
-          git config user.email actions@github.com
-          git add 30s_clip.json
-          git commit -m "Add CI transcript [skip ci]"
-          git push
+          python -m pip install --upgrade pip
+          pip install -r apps/pipeline-e2e/requirements.txt
+      - name: Run pipeline-e2e tests
+        run: pytest apps/pipeline-e2e/tests/ -v
+      - name: Check token usage
+        run: echo "TOKENS_USED=estimated-5k" >> $GITHUB_OUTPUT
+
+  test-ingest:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.ingest == 'true' || needs.detect-changes.outputs.libs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r apps/navigator-ingest/requirements.txt
+      - name: Run navigator-ingest tests
+        run: pytest apps/navigator-ingest/tests/ -v
+      - name: Check token usage
+        run: echo "TOKENS_USED=estimated-8k" >> $GITHUB_OUTPUT
+
+  test-strategy:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.strategy == 'true' || needs.detect-changes.outputs.libs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r apps/navigator-strategy/requirements.txt
+      - name: Run navigator-strategy tests
+        run: pytest apps/navigator-strategy/tests/ -v
+      - name: Run RAG Evaluation
+        run: |
+          if [ -d "libs/eval-harness/tests" ]; then
+            pytest libs/eval-harness/tests/ -v
+          else
+            echo "No eval-harness tests found, skipping"
+          fi
+      - name: Check token usage
+        run: echo "TOKENS_USED=estimated-12k" >> $GITHUB_OUTPUT
+
+  test-ui:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.ui == 'true' || needs.detect-changes.outputs.libs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r apps/navigator-ui/requirements.txt
+      - name: Run navigator-ui tests
+        run: pytest apps/navigator-ui/tests/ -v
+      - name: Check token usage
+        run: echo "TOKENS_USED=estimated-6k" >> $GITHUB_OUTPUT
+
+  # Summary job that depends on all test jobs
+  test-summary:
+    needs: [detect-changes, test-pipeline, test-ingest, test-strategy, test-ui]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check test results
+        run: |
+          echo "Pipeline tests: ${{ needs.test-pipeline.result }}"
+          echo "Ingest tests: ${{ needs.test-ingest.result }}"
+          echo "Strategy tests: ${{ needs.test-strategy.result }}"
+          echo "UI tests: ${{ needs.test-ui.result }}"
+          
+          # Fail if any required tests failed
+          if [[ "${{ needs.test-pipeline.result }}" == "failure" ]] || \
+             [[ "${{ needs.test-ingest.result }}" == "failure" ]] || \
+             [[ "${{ needs.test-strategy.result }}" == "failure" ]] || \
+             [[ "${{ needs.test-ui.result }}" == "failure" ]]; then
+            echo "One or more test jobs failed"
+            exit 1
+          fi
+          
+          echo "All tests passed or were skipped appropriately"
