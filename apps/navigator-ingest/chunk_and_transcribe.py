@@ -4,8 +4,11 @@ from pathlib import Path
 import subprocess
 import requests
 
-from spiceflow.rss_parser import RSSParser
-from spiceflow.clients.runpod_client import RunPodClient
+from .rss_parser import RSSParser
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "libs" / "common-utils"))
+from runpod_client import RunPodClient
 
 FEED_URL = "https://feeds.acast.com/public/shows/65bac3af03341c00164bf93b"
 

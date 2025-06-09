@@ -3,7 +3,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
-from spiceflow.analyzer import StrategicAnalyzer
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "apps" / "navigator-strategy"))
+from analyzer import StrategicAnalyzer
 
 
 def test_analyze_selects_keyword_sentence():

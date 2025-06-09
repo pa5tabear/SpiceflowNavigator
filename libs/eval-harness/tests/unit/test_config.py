@@ -3,7 +3,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
-from spiceflow import config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "libs" / "common-utils"))
+import config
 
 
 def test_config_loader_structured(tmp_path):
